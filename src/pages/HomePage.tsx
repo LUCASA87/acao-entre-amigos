@@ -42,8 +42,6 @@ export function HomePage() {
       if (filtro !== 'todos' && item.status !== filtro) return false
       if (!q) return true
 
-      // Busca por número: exata (zeros à esquerda ignorados)
-      // "1", "01" e "001" → só o número 1
       if (/^\d+$/.test(q)) {
         const numeroBuscado = Number.parseInt(q, 10)
         return item.numero === numeroBuscado
@@ -89,51 +87,58 @@ export function HomePage() {
   }
 
   return (
-    <div className="mx-auto min-h-dvh max-w-7xl px-4 py-5 sm:px-6 sm:py-8">
-      <header className="animate-fade-up mb-6 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <Logo />
-          <p className="mt-3 max-w-xl text-sm text-muted sm:text-base">
-            Campanha <span className="font-semibold text-brand-700">{CAMPANHA_NOME}</span>
-            {' — '}escolha um número disponível e registre a venda.
-          </p>
+    <div className="mx-auto min-h-dvh max-w-7xl px-3 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-6 sm:py-8">
+      <header className="animate-fade-up mb-4 sm:mb-8">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <Logo />
+            <p className="mt-2 max-w-xl text-xs text-muted sm:mt-3 sm:text-base">
+              Campanha{' '}
+              <span className="font-semibold text-brand-700">
+                {CAMPANHA_NOME}
+              </span>
+              <span className="hidden sm:inline">
+                {' — '}escolha um número disponível e registre a venda.
+              </span>
+            </p>
+          </div>
         </div>
 
-        <div className="relative flex flex-wrap gap-2">
+        <div className="relative mt-3 grid grid-cols-3 gap-2 sm:mt-4 sm:flex sm:flex-wrap">
           <Link
             to="/relatorios"
-            className="inline-flex items-center gap-2 rounded-xl border border-brand-200 bg-white px-4 py-2.5 text-sm font-medium text-ink shadow-sm transition hover:bg-brand-50"
+            className="inline-flex touch-manipulation items-center justify-center gap-1.5 rounded-xl border border-brand-200 bg-white px-2 py-2.5 text-xs font-medium text-ink shadow-sm transition active:bg-brand-50 sm:gap-2 sm:px-4 sm:text-sm"
           >
-            <FileText size={16} />
-            Relatórios
+            <FileText size={15} className="shrink-0" />
+            <span className="truncate">Relatórios</span>
           </Link>
           <button
             type="button"
             onClick={() => setShowReports((v) => !v)}
-            className="inline-flex items-center gap-2 rounded-xl border border-brand-200 bg-white px-4 py-2.5 text-sm font-medium text-ink shadow-sm transition hover:bg-brand-50"
+            className="inline-flex touch-manipulation items-center justify-center gap-1.5 rounded-xl border border-brand-200 bg-white px-2 py-2.5 text-xs font-medium text-ink shadow-sm transition active:bg-brand-50 sm:gap-2 sm:px-4 sm:text-sm"
           >
-            <FileSpreadsheet size={16} />
-            Exportar
+            <FileSpreadsheet size={15} className="shrink-0" />
+            <span className="truncate">Exportar</span>
           </button>
           <button
             type="button"
             onClick={() => void refetch()}
             disabled={isFetching}
-            className="inline-flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 disabled:opacity-70"
+            className="inline-flex touch-manipulation items-center justify-center gap-1.5 rounded-xl bg-brand-600 px-2 py-2.5 text-xs font-semibold text-white shadow-sm transition active:bg-brand-700 disabled:opacity-70 sm:gap-2 sm:px-4 sm:text-sm"
           >
             <RefreshCw
-              size={16}
-              className={isFetching ? 'animate-spin' : undefined}
+              size={15}
+              className={`shrink-0 ${isFetching ? 'animate-spin' : ''}`}
             />
-            Atualizar
+            <span className="truncate">Atualizar</span>
           </button>
 
           {showReports && (
-            <div className="animate-pop-in absolute right-0 top-full z-20 mt-2 w-56 overflow-hidden rounded-2xl border border-brand-200 bg-white shadow-xl">
+            <div className="animate-pop-in absolute left-0 right-0 top-full z-20 mt-2 overflow-hidden rounded-2xl border border-brand-200 bg-white shadow-xl sm:left-auto sm:right-0 sm:w-56">
               <button
                 type="button"
                 onClick={handleExportPdf}
-                className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm transition hover:bg-brand-50"
+                className="flex w-full touch-manipulation items-center gap-2 px-4 py-3.5 text-left text-sm transition active:bg-brand-50"
               >
                 <FileText size={16} className="text-paid" />
                 Exportar PDF
@@ -141,7 +146,7 @@ export function HomePage() {
               <button
                 type="button"
                 onClick={handleExportExcel}
-                className="flex w-full items-center gap-2 border-t border-brand-100 px-4 py-3 text-left text-sm transition hover:bg-brand-50"
+                className="flex w-full touch-manipulation items-center gap-2 border-t border-brand-100 px-4 py-3.5 text-left text-sm transition active:bg-brand-50"
               >
                 <FileSpreadsheet size={16} className="text-available" />
                 Exportar Excel
@@ -151,7 +156,7 @@ export function HomePage() {
         </div>
       </header>
 
-      <section className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <section className="mb-4 grid grid-cols-2 gap-2 sm:mb-6 sm:gap-3 lg:grid-cols-4">
         <StatCard
           label="Disponíveis"
           value={stats.disponiveis}
@@ -178,8 +183,8 @@ export function HomePage() {
         />
       </section>
 
-      <section className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center">
-        <div className="relative flex-1">
+      <section className="sticky top-0 z-10 -mx-3 mb-4 space-y-2.5 border-b border-brand-100/80 bg-surface/95 px-3 py-2.5 backdrop-blur-md sm:static sm:mx-0 sm:mb-5 sm:space-y-3 sm:border-0 sm:bg-transparent sm:px-0 sm:py-0 sm:backdrop-blur-none">
+        <div className="relative">
           <Search
             size={18}
             className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted"
@@ -188,12 +193,14 @@ export function HomePage() {
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Pesquisar número, nome, telefone ou vendedor..."
-            className="w-full rounded-xl border border-brand-200 bg-white py-2.5 pl-10 pr-3 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
+            placeholder="Nº, nome, telefone ou vendedor"
+            inputMode="search"
+            enterKeyHint="search"
+            className="w-full rounded-xl border border-brand-200 bg-white py-3 pl-10 pr-3 text-base outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 sm:py-2.5 sm:text-sm"
           />
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="-mx-0.5 flex gap-2 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {(
             [
               ['todos', 'Todos'],
@@ -206,10 +213,10 @@ export function HomePage() {
               key={value}
               type="button"
               onClick={() => setFiltro(value)}
-              className={`rounded-xl px-3 py-2 text-sm font-medium transition ${
+              className={`shrink-0 touch-manipulation rounded-xl px-3.5 py-2 text-sm font-medium transition ${
                 filtro === value
                   ? 'bg-brand-600 text-white shadow-sm'
-                  : 'border border-brand-200 bg-white text-muted hover:bg-brand-50'
+                  : 'border border-brand-200 bg-white text-muted active:bg-brand-50'
               }`}
             >
               {label}
@@ -218,11 +225,11 @@ export function HomePage() {
         </div>
       </section>
 
-      <div className="mb-4 flex flex-wrap items-center gap-4 text-xs text-muted sm:text-sm">
+      <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11px] text-muted sm:mb-4 sm:gap-4 sm:text-sm">
         <Legend color="bg-available" label="Disponível" />
         <Legend color="bg-reserved" label="Reservado" />
         <Legend color="bg-paid" label="Pago" />
-        <span className="ml-auto tabular-nums">
+        <span className="w-full tabular-nums sm:ml-auto sm:w-auto">
           Exibindo {filtered.length} de {data?.length ?? 0}
         </span>
       </div>
@@ -233,7 +240,7 @@ export function HomePage() {
           <p>Carregando números...</p>
         </div>
       ) : isError ? (
-        <div className="rounded-2xl border border-paid/30 bg-paid-bg px-6 py-10 text-center">
+        <div className="rounded-2xl border border-paid/30 bg-paid-bg px-4 py-10 text-center sm:px-6">
           <p className="font-display text-lg text-paid">
             Erro ao carregar números
           </p>
@@ -243,7 +250,7 @@ export function HomePage() {
           <button
             type="button"
             onClick={() => void refetch()}
-            className="mt-4 rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white"
+            className="mt-4 touch-manipulation rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white"
           >
             Tentar de novo
           </button>

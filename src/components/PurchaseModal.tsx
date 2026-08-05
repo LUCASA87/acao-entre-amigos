@@ -180,7 +180,7 @@ function Field({
 }
 
 function inputClass(hasError: boolean) {
-  return `w-full rounded-xl border bg-white px-3 py-2.5 text-sm outline-none transition focus:ring-2 focus:ring-brand-500/30 ${
+  return `w-full rounded-xl border bg-white px-3 py-3 text-base outline-none transition focus:ring-2 focus:ring-brand-500/30 sm:py-2.5 sm:text-sm ${
     hasError
       ? 'border-paid focus:border-paid'
       : 'border-brand-200 focus:border-brand-500'

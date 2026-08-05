@@ -29,6 +29,8 @@
 @layer base {
   html {
     @apply antialiased;
+    -webkit-tap-highlight-color: transparent;
+    text-size-adjust: 100%;
   }
 
   body {
@@ -38,10 +40,19 @@
       radial-gradient(ellipse 60% 40% at 100% 0%, rgba(224, 137, 26, 0.08), transparent),
       linear-gradient(180deg, #f6faf7 0%, #eef5f0 100%);
     background-attachment: fixed;
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
   }
 
   #root {
     @apply min-h-dvh;
+  }
+
+  input,
+  select,
+  textarea,
+  button {
+    touch-action: manipulation;
   }
 }
 
@@ -82,11 +93,13 @@
     background-color 0.2s ease;
 }
 
-.number-cell:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(20, 32, 25, 0.12);
+@media (hover: hover) and (pointer: fine) {
+  .number-cell:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(20, 32, 25, 0.12);
+  }
 }
 
 .number-cell:active:not(:disabled) {
-  transform: translateY(0);
+  transform: scale(0.96);
 }
