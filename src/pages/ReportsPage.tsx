@@ -22,16 +22,10 @@ import {
   useRifaStats,
 } from '@/hooks/useRifa'
 import { exportToExcel, exportToPdf } from '@/lib/export'
-import { formatCurrency, formatDate, formatNumero } from '@/lib/format'
+import { formatCurrency, formatDate, formatNumero, samePerson, uniquePeople } from '@/lib/format'
 import { CAMPANHA_NOME, VALOR_NUMERO } from '@/lib/supabase'
 import type { RifaNumero } from '@/types/rifa'
 import { STATUS_LABELS } from '@/types/rifa'
-
-function uniqueSorted(values: Array<string | null | undefined>) {
-  return [...new Set(values.map((v) => v?.trim()).filter(Boolean) as string[])].sort(
-    (a, b) => a.localeCompare(b, 'pt-BR'),
-  )
-}
 
 export function ReportsPage() {
   const { data, isLoading } = useRifaNumeros()
@@ -51,18 +45,18 @@ export function ReportsPage() {
   )
 
   const vendedores = useMemo(
-    () => uniqueSorted(vendidos.map((n) => n.vendedor)),
+    () => uniquePeople(vendidos.map((n) => n.vendedor)),
     [vendidos],
   )
   const compradores = useMemo(
-    () => uniqueSorted(vendidos.map((n) => n.nome_comprador)),
+    () => uniquePeople(vendidos.map((n) => n.nome_comprador)),
     [vendidos],
   )
 
   const filtrados = useMemo(() => {
     return vendidos.filter((n) => {
-      if (filtroVendedor && (n.vendedor ?? '') !== filtroVendedor) return false
-      if (filtroComprador && (n.nome_comprador ?? '') !== filtroComprador) {
+      if (filtroVendedor && !samePerson(n.vendedor, filtroVendedor)) return false
+      if (filtroComprador && !samePerson(n.nome_comprador, filtroComprador)) {
         return false
       }
       return true
