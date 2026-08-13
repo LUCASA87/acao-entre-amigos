@@ -80,6 +80,35 @@ export async function comprarNumero(
   return data as RifaNumero
 }
 
+export async function comprarNumeros(
+  ids: string[],
+  form: CompraFormData,
+): Promise<RifaNumero[]> {
+  const uniqueIds = [...new Set(ids)]
+  if (uniqueIds.length === 0) {
+    throw new Error('Selecione ao menos um número')
+  }
+
+  const results: RifaNumero[] = []
+
+  for (const id of uniqueIds) {
+    try {
+      const updated = await comprarNumero(id, form)
+      results.push(updated)
+    } catch {
+      // número já ocupado — segue com os demais
+    }
+  }
+
+  if (results.length === 0) {
+    throw new Error(
+      'Nenhum número pôde ser registrado (já vendidos ou reservados)',
+    )
+  }
+
+  return results
+}
+
 export async function marcarComoPago(id: string): Promise<RifaNumero> {
   const { data: current, error: fetchError } = await supabase
     .from('rifa_numeros')

@@ -27,15 +27,16 @@ export function HomePage() {
   const stats = useRifaStats(data)
 
   const [search, setSearch] = useState('')
-  const [compra, setCompra] = useState<RifaNumero | null>(null)
+  const [selecionados, setSelecionados] = useState<RifaNumero[]>([])
   const [showReports, setShowReports] = useState(false)
 
+  const disponiveis = useMemo(
+    () => (data ?? []).filter((item) => item.status === 'Disponivel'),
+    [data],
+  )
+
   const filtered = useMemo(() => {
-    if (!data) return []
-
     const q = search.trim().toLowerCase()
-    const disponiveis = data.filter((item) => item.status === 'Disponivel')
-
     if (!q) return disponiveis
 
     if (/^\d+$/.test(q)) {
@@ -44,12 +45,22 @@ export function HomePage() {
     }
 
     return disponiveis
-  }, [data, search])
+  }, [disponiveis, search])
+
+  const selectedIds = useMemo(
+    () => new Set(selecionados.map((n) => n.id)),
+    [selecionados],
+  )
 
   const handleSelect = (numero: RifaNumero) => {
-    if (numero.status === 'Disponivel') {
-      setCompra(numero)
-    }
+    if (numero.status !== 'Disponivel') return
+
+    setSelecionados((prev) => {
+      if (prev.some((n) => n.id === numero.id)) {
+        return prev.filter((n) => n.id !== numero.id)
+      }
+      return [...prev, numero].sort((a, b) => a.numero - b.numero)
+    })
   }
 
   const handleExportPdf = () => {
@@ -82,7 +93,7 @@ export function HomePage() {
             Campanha{' '}
             <span className="font-semibold text-brand-600">{CAMPANHA_NOME}</span>
             <span className="hidden sm:inline">
-              {' — '}escolha um número disponível e registre a venda.
+              {' — '}escolha um ou mais números e registre a venda.
             </span>
           </p>
 
@@ -152,12 +163,7 @@ export function HomePage() {
           icon={Hash}
           tone="gold"
         />
-        <StatCard
-          label="Pagos"
-          value={stats.pagos}
-          icon={Hash}
-          tone="red"
-        />
+        <StatCard label="Pagos" value={stats.pagos} icon={Hash} tone="red" />
         <StatCard
           label="Arrecadado"
           value={formatCurrency(stats.totalArrecadado)}
@@ -183,7 +189,8 @@ export function HomePage() {
           />
         </div>
         <p className="text-[11px] text-muted sm:text-xs">
-          Números comprados não aparecem na grade — veja em{' '}
+          Toque nos números para selecionar. Depois confirme a compra no modal.
+          Vendidos ficam em{' '}
           <Link to="/relatorios" className="font-semibold text-brand-600">
             Relatórios
           </Link>
@@ -194,7 +201,11 @@ export function HomePage() {
       <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11px] text-muted sm:mb-4 sm:gap-4 sm:text-sm">
         <span className="inline-flex items-center gap-1.5">
           <span className="h-2.5 w-2.5 rounded-full bg-ad-green" />
-          Disponível para compra
+          Disponível
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <span className="h-2.5 w-2.5 rounded-full bg-brand-600" />
+          Selecionado
         </span>
         <span className="w-full tabular-nums font-medium text-brand-600 sm:ml-auto sm:w-auto">
           {filtered.length} livres de {data?.length ?? 0}
@@ -223,10 +234,19 @@ export function HomePage() {
           </button>
         </div>
       ) : (
-        <NumberGrid numeros={filtered} onSelect={handleSelect} />
+        <NumberGrid
+          numeros={filtered}
+          onSelect={handleSelect}
+          selectedIds={selectedIds}
+        />
       )}
 
-      <PurchaseModal numero={compra} onClose={() => setCompra(null)} />
+      <PurchaseModal
+        numeros={selecionados}
+        disponiveis={disponiveis}
+        onChangeNumeros={setSelecionados}
+        onClose={() => setSelecionados([])}
+      />
     </div>
   )
 }

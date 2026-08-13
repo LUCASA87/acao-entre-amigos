@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import {
   comprarNumero,
+  comprarNumeros,
   fetchNumeros,
   limparNumero,
   marcarComoPago,
@@ -40,6 +41,35 @@ export function useComprarNumero() {
       toast.success(
         `Número ${formatNumero(updated.numero)} registrado com sucesso!`,
       )
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Erro ao registrar venda')
+      void queryClient.invalidateQueries({ queryKey: RIFA_QUERY_KEY })
+    },
+  })
+}
+
+export function useComprarNumeros() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ ids, form }: { ids: string[]; form: CompraFormData }) =>
+      comprarNumeros(ids, form),
+    onSuccess: (updatedList, variables) => {
+      for (const updated of updatedList) {
+        updateCache(queryClient, updated)
+      }
+      const nums = updatedList.map((n) => formatNumero(n.numero)).join(', ')
+      toast.success(
+        updatedList.length === 1
+          ? `Número ${nums} registrado com sucesso!`
+          : `${updatedList.length} números registrados: ${nums}`,
+      )
+      if (updatedList.length < variables.ids.length) {
+        toast.warning(
+          'Alguns números já estavam ocupados e não foram alterados',
+        )
+      }
     },
     onError: (error: Error) => {
       toast.error(error.message || 'Erro ao registrar venda')

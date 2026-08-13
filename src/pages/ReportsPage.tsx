@@ -1,3 +1,4 @@
+import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   ArrowLeft,
@@ -9,6 +10,7 @@ import {
   Hash,
   Loader2,
   Ticket,
+  Users,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Logo } from '@/components/Logo'
@@ -25,15 +27,47 @@ import { CAMPANHA_NOME, VALOR_NUMERO } from '@/lib/supabase'
 import type { RifaNumero } from '@/types/rifa'
 import { STATUS_LABELS } from '@/types/rifa'
 
+function uniqueSorted(values: Array<string | null | undefined>) {
+  return [...new Set(values.map((v) => v?.trim()).filter(Boolean) as string[])].sort(
+    (a, b) => a.localeCompare(b, 'pt-BR'),
+  )
+}
+
 export function ReportsPage() {
   const { data, isLoading } = useRifaNumeros()
   const stats = useRifaStats(data)
   const marcarPago = useMarcarComoPago()
   const limpar = useLimparNumero()
 
-  const vendidos = (data ?? [])
-    .filter((n) => n.status !== 'Disponivel')
-    .sort((a, b) => a.numero - b.numero)
+  const [filtroVendedor, setFiltroVendedor] = useState('')
+  const [filtroComprador, setFiltroComprador] = useState('')
+
+  const vendidos = useMemo(
+    () =>
+      (data ?? [])
+        .filter((n) => n.status !== 'Disponivel')
+        .sort((a, b) => a.numero - b.numero),
+    [data],
+  )
+
+  const vendedores = useMemo(
+    () => uniqueSorted(vendidos.map((n) => n.vendedor)),
+    [vendidos],
+  )
+  const compradores = useMemo(
+    () => uniqueSorted(vendidos.map((n) => n.nome_comprador)),
+    [vendidos],
+  )
+
+  const filtrados = useMemo(() => {
+    return vendidos.filter((n) => {
+      if (filtroVendedor && (n.vendedor ?? '') !== filtroVendedor) return false
+      if (filtroComprador && (n.nome_comprador ?? '') !== filtroComprador) {
+        return false
+      }
+      return true
+    })
+  }, [vendidos, filtroVendedor, filtroComprador])
 
   const busyId =
     marcarPago.isPending && marcarPago.variables
@@ -129,6 +163,66 @@ export function ReportsPage() {
         />
       </div>
 
+      <section className="mb-5 overflow-hidden rounded-2xl border border-ad-blue/20 bg-white/90 p-3 shadow-sm sm:p-4">
+        <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-ad-blue">
+          <Users size={16} />
+          Filtrar por pessoa
+        </div>
+        <div className="grid gap-2 sm:grid-cols-2">
+          <label className="block text-sm">
+            <span className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted">
+              Vendedor
+            </span>
+            <select
+              value={filtroVendedor}
+              onChange={(e) => setFiltroVendedor(e.target.value)}
+              className="w-full rounded-xl border border-brand-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
+            >
+              <option value="">Todos os vendedores</option>
+              {vendedores.map((nome) => (
+                <option key={nome} value={nome}>
+                  {nome}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="block text-sm">
+            <span className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted">
+              Comprador
+            </span>
+            <select
+              value={filtroComprador}
+              onChange={(e) => setFiltroComprador(e.target.value)}
+              className="w-full rounded-xl border border-brand-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
+            >
+              <option value="">Todos os compradores</option>
+              {compradores.map((nome) => (
+                <option key={nome} value={nome}>
+                  {nome}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+        {(filtroVendedor || filtroComprador) && (
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted">
+            <span>
+              Mostrando {filtrados.length} de {vendidos.length}
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                setFiltroVendedor('')
+                setFiltroComprador('')
+              }}
+              className="font-semibold text-brand-600"
+            >
+              Limpar filtros
+            </button>
+          </div>
+        )}
+      </section>
+
       {isLoading ? (
         <div className="flex justify-center py-20">
           <Loader2 className="animate-spin text-brand-600" size={28} />
@@ -137,10 +231,14 @@ export function ReportsPage() {
         <div className="rounded-2xl border border-dashed border-brand-300 bg-white/70 px-4 py-12 text-center text-muted">
           Nenhuma venda registrada ainda.
         </div>
+      ) : filtrados.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-brand-300 bg-white/70 px-4 py-12 text-center text-muted">
+          Nenhum registro com esses filtros.
+        </div>
       ) : (
         <>
           <div className="space-y-3 md:hidden">
-            {vendidos.map((n) => (
+            {filtrados.map((n) => (
               <article
                 key={n.id}
                 className="overflow-hidden rounded-2xl border border-brand-200 bg-white shadow-sm"
@@ -259,7 +357,7 @@ export function ReportsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {vendidos.map((n) => (
+                  {filtrados.map((n) => (
                     <tr
                       key={n.id}
                       className="border-t border-brand-100 hover:bg-brand-50/40"
