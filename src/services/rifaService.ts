@@ -79,3 +79,75 @@ export async function comprarNumero(
 
   return data as RifaNumero
 }
+
+export async function marcarComoPago(id: string): Promise<RifaNumero> {
+  const { data: current, error: fetchError } = await supabase
+    .from('rifa_numeros')
+    .select('*')
+    .eq('id', id)
+    .single()
+
+  if (fetchError) throw fetchError
+  if (!current) throw new Error('Número não encontrado')
+
+  const row = current as RifaNumero
+  if (row.status !== 'Reservado') {
+    throw new Error('Só é possível marcar como pago um número reservado')
+  }
+
+  const { data, error } = await supabase
+    .from('rifa_numeros')
+    .update({
+      status: 'Pago',
+      data_venda: row.data_venda ?? new Date().toISOString(),
+    })
+    .eq('id', id)
+    .eq('status', 'Reservado')
+    .select()
+    .maybeSingle()
+
+  if (error) throw error
+  if (!data) {
+    throw new Error('Não foi possível atualizar este número')
+  }
+
+  return data as RifaNumero
+}
+
+export async function limparNumero(id: string): Promise<RifaNumero> {
+  const { data: current, error: fetchError } = await supabase
+    .from('rifa_numeros')
+    .select('*')
+    .eq('id', id)
+    .single()
+
+  if (fetchError) throw fetchError
+  if (!current) throw new Error('Número não encontrado')
+
+  const row = current as RifaNumero
+  if (row.status === 'Disponivel') {
+    throw new Error('Este número já está disponível')
+  }
+
+  const { data, error } = await supabase
+    .from('rifa_numeros')
+    .update({
+      status: 'Disponivel',
+      nome_comprador: null,
+      telefone: null,
+      vendedor: null,
+      forma_pagamento: null,
+      data_venda: null,
+    })
+    .eq('id', id)
+    .neq('status', 'Disponivel')
+    .select()
+    .maybeSingle()
+
+  if (error) throw error
+  if (!data) {
+    throw new Error('Não foi possível limpar este número')
+  }
+
+  return data as RifaNumero
+}

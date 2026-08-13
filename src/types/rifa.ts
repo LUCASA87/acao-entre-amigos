@@ -21,8 +21,6 @@ export interface CompraFormData {
   status: 'Reservado' | 'Pago'
 }
 
-export type FiltroStatus = 'todos' | 'Disponivel' | 'Reservado' | 'Pago'
-
 export const TOTAL_NUMEROS = 500
 
 export const STATUS_LABELS: Record<StatusNumero, string> = {
@@ -38,16 +36,16 @@ export const STATUS_COLORS: Record<
   Disponivel: {
     bg: 'bg-available-bg',
     text: 'text-available',
-    border: 'border-available/30',
+    border: 'border-available/35',
   },
   Reservado: {
     bg: 'bg-reserved-bg',
     text: 'text-reserved',
-    border: 'border-reserved/30',
+    border: 'border-reserved/35',
   },
   Pago: {
     bg: 'bg-paid-bg',
     text: 'text-paid',
-    border: 'border-paid/30',
+    border: 'border-paid/35',
   },
 }

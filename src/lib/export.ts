@@ -79,7 +79,7 @@ export function exportToPdf(numeros: RifaNumero[]) {
       n.status === 'Pago' ? formatCurrency(VALOR_NUMERO) : '—',
     ]),
     styles: { fontSize: 8 },
-    headStyles: { fillColor: [42, 110, 72] },
+    headStyles: { fillColor: [196, 22, 28] },
   })
 
   doc.save(

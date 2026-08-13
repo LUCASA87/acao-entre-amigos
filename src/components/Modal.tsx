@@ -42,10 +42,11 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
         onClick={onClose}
       />
       <div className="animate-pop-in relative z-10 flex max-h-[min(92dvh,100%)] w-full flex-col overflow-hidden rounded-t-3xl border border-brand-200/70 bg-white shadow-2xl sm:max-h-[90dvh] sm:max-w-lg sm:rounded-3xl">
+        <div className="brand-stripe h-1.5 shrink-0" />
         <div className="flex shrink-0 items-center justify-between border-b border-brand-100 bg-white px-4 py-3 sm:px-5 sm:py-4">
           <h2
             id="modal-title"
-            className="pr-2 font-display text-lg font-semibold text-ink sm:text-xl"
+            className="pr-2 font-display text-lg font-semibold text-brand-600 sm:text-xl"
           >
             {title}
           </h2>
