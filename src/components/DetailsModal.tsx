@@ -10,6 +10,8 @@ interface DetailsModalProps {
   numero: RifaNumero | null
   onClose: () => void
   title?: string
+  /** Se true, a mensagem do WhatsApp avisa que a pessoa foi ganhadora */
+  mensagemGanhador?: boolean
 }
 
 function toWhatsAppNumber(telefone: string | null | undefined): string | null {
@@ -20,9 +22,34 @@ function toWhatsAppNumber(telefone: string | null | undefined): string | null {
   return digits
 }
 
-function buildWhatsAppMessage(n: RifaNumero): string {
+function buildWhatsAppMessage(
+  n: RifaNumero,
+  mensagemGanhador: boolean,
+): string {
   const nome = n.nome_comprador?.trim() || 'amigo(a)'
   const num = formatNumero(n.numero)
+
+  if (mensagemGanhador) {
+    const linhas = [
+      `🎉 Parabéns, ${nome}!`,
+      '',
+      `Você foi *ganhador(a)* da campanha *${CAMPANHA_NOME}*! 🏆`,
+      '',
+      `Número sorteado: *${num}*`,
+    ]
+    if (n.vendedor) linhas.push(`Vendedor: ${n.vendedor}`)
+    if (n.forma_pagamento) linhas.push(`Pagamento: ${n.forma_pagamento}`)
+    if (n.status === 'Pago') {
+      linhas.push(`Valor: ${formatCurrency(VALOR_NUMERO)}`)
+    }
+    linhas.push(
+      '',
+      'Entre em contato conosco para combinar a entrega do prêmio.',
+      'Estamos muito felizes por você! 🙌',
+    )
+    return linhas.join('\n')
+  }
+
   const linhas = [
     `Olá, ${nome}!`,
     '',
@@ -45,6 +72,7 @@ export function DetailsModal({
   numero,
   onClose,
   title,
+  mensagemGanhador = false,
 }: DetailsModalProps) {
   if (!numero) {
     return (
@@ -63,7 +91,7 @@ export function DetailsModal({
       return
     }
     const url = `https://wa.me/${waNumber}?text=${encodeURIComponent(
-      buildWhatsAppMessage(numero),
+      buildWhatsAppMessage(numero, mensagemGanhador),
     )}`
     window.open(url, '_blank', 'noopener,noreferrer')
   }
@@ -113,7 +141,9 @@ export function DetailsModal({
             className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#25D366] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition active:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <MessageCircle size={18} />
-            Enviar no WhatsApp
+            {mensagemGanhador
+              ? 'Avisar ganhador no WhatsApp'
+              : 'Enviar no WhatsApp'}
           </button>
         </div>
       </div>

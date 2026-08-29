@@ -344,6 +344,7 @@ export function SorteioModal({ open, onClose, numeros }: SorteioModalProps) {
       <DetailsModal
         numero={detalhe}
         onClose={() => setDetalhe(null)}
+        mensagemGanhador
         title={
           detalhe
             ? `Dados — ${detalhe.nome_comprador ?? formatNumero(detalhe.numero)}`
