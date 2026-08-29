@@ -4,7 +4,10 @@ import { Modal } from '@/components/Modal'
 import type { RifaNumero } from '@/types/rifa'
 import { STATUS_LABELS, STATUS_COLORS } from '@/types/rifa'
 import { formatCurrency, formatDate, formatNumero } from '@/lib/format'
-import { CAMPANHA_NOME, VALOR_NUMERO } from '@/lib/supabase'
+import { VALOR_NUMERO } from '@/lib/supabase'
+
+const IGREJA_NOME = 'AD Barreto'
+const CAMPANHA_MSG = 'Ação Entre Amigos'
 
 interface DetailsModalProps {
   numero: RifaNumero | null
@@ -28,24 +31,23 @@ function buildWhatsAppMessage(
 ): string {
   const nome = n.nome_comprador?.trim() || 'amigo(a)'
   const num = formatNumero(n.numero)
+  const vendedor = n.vendedor?.trim()
 
   if (mensagemGanhador) {
     const linhas = [
-      `🎉 Parabéns, ${nome}!`,
+      `Olá, ${nome}!`,
       '',
-      `Você foi *ganhador(a)* da campanha *${CAMPANHA_NOME}*! 🏆`,
-      '',
-      `Número sorteado: *${num}*`,
+      `Você foi o ganhador do sorteio da ${CAMPANHA_MSG} da ${IGREJA_NOME}!`,
+      `Número sorteado: *${num}*.`,
     ]
-    if (n.vendedor) linhas.push(`Vendedor: ${n.vendedor}`)
-    if (n.forma_pagamento) linhas.push(`Pagamento: ${n.forma_pagamento}`)
-    if (n.status === 'Pago') {
-      linhas.push(`Valor: ${formatCurrency(VALOR_NUMERO)}`)
+
+    if (vendedor) {
+      linhas.push(`O seu vendedor foi o *${vendedor}*.`)
     }
+
     linhas.push(
       '',
-      'Entre em contato conosco para combinar a entrega do prêmio.',
-      'Estamos muito felizes por você! 🙌',
+      'Quando tiver um tempinho, vamos combinar a entrega do prêmio.',
     )
     return linhas.join('\n')
   }
@@ -53,12 +55,12 @@ function buildWhatsAppMessage(
   const linhas = [
     `Olá, ${nome}!`,
     '',
-    `Referente à campanha *${CAMPANHA_NOME}*.`,
+    `Referente à campanha *${CAMPANHA_MSG}* da ${IGREJA_NOME}.`,
     `Número: *${num}*`,
     `Status: *${STATUS_LABELS[n.status]}*`,
   ]
 
-  if (n.vendedor) linhas.push(`Vendedor: ${n.vendedor}`)
+  if (vendedor) linhas.push(`Vendedor: ${vendedor}`)
   if (n.forma_pagamento) linhas.push(`Pagamento: ${n.forma_pagamento}`)
   if (n.status === 'Pago') {
     linhas.push(`Valor: ${formatCurrency(VALOR_NUMERO)}`)
@@ -72,7 +74,7 @@ export function DetailsModal({
   numero,
   onClose,
   title,
-  mensagemGanhador = false,
+  mensagemGanhador = true,
 }: DetailsModalProps) {
   if (!numero) {
     return (
@@ -141,9 +143,7 @@ export function DetailsModal({
             className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#25D366] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition active:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <MessageCircle size={18} />
-            {mensagemGanhador
-              ? 'Avisar ganhador no WhatsApp'
-              : 'Enviar no WhatsApp'}
+            Avisar ganhador no WhatsApp
           </button>
         </div>
       </div>
