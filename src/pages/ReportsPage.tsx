@@ -17,6 +17,7 @@ import { toast } from 'sonner'
 import { Logo } from '@/components/Logo'
 import { StatCard } from '@/components/StatCard'
 import { SorteioModal } from '@/components/SorteioModal'
+import { DetailsModal } from '@/components/DetailsModal'
 import {
   useLimparNumero,
   useMarcarComoPago,
@@ -38,6 +39,7 @@ export function ReportsPage() {
   const [filtroVendedor, setFiltroVendedor] = useState('')
   const [filtroComprador, setFiltroComprador] = useState('')
   const [sorteioAberto, setSorteioAberto] = useState(false)
+  const [detalhe, setDetalhe] = useState<RifaNumero | null>(null)
 
   const vendidos = useMemo(
     () =>
@@ -269,7 +271,15 @@ export function ReportsPage() {
                       <dt className="text-[11px] uppercase text-muted">
                         Comprador
                       </dt>
-                      <dd className="font-medium">{n.nome_comprador || '—'}</dd>
+                      <dd>
+                        <button
+                          type="button"
+                          onClick={() => setDetalhe(n)}
+                          className="font-medium text-brand-600 underline-offset-2 hover:underline"
+                        >
+                          {n.nome_comprador || '—'}
+                        </button>
+                      </dd>
                     </div>
                     <div>
                       <dt className="text-[11px] uppercase text-muted">
@@ -371,7 +381,15 @@ export function ReportsPage() {
                         {formatNumero(n.numero)}
                       </td>
                       <td className="px-4 py-3">{STATUS_LABELS[n.status]}</td>
-                      <td className="px-4 py-3">{n.nome_comprador}</td>
+                      <td className="px-4 py-3">
+                        <button
+                          type="button"
+                          onClick={() => setDetalhe(n)}
+                          className="font-medium text-brand-600 underline-offset-2 hover:underline"
+                        >
+                          {n.nome_comprador}
+                        </button>
+                      </td>
                       <td className="px-4 py-3">{n.telefone}</td>
                       <td className="px-4 py-3">{n.vendedor}</td>
                       <td className="px-4 py-3">{n.forma_pagamento}</td>
@@ -426,6 +444,15 @@ export function ReportsPage() {
         open={sorteioAberto}
         onClose={() => setSorteioAberto(false)}
         numeros={data ?? []}
+      />
+      <DetailsModal
+        numero={detalhe}
+        onClose={() => setDetalhe(null)}
+        title={
+          detalhe
+            ? `Dados — ${detalhe.nome_comprador ?? formatNumero(detalhe.numero)}`
+            : 'Detalhes'
+        }
       />
     </div>
   )

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { Dices, Loader2, PartyPopper, Trophy } from 'lucide-react'
 import { toast } from 'sonner'
 import { Modal } from '@/components/Modal'
+import { DetailsModal } from '@/components/DetailsModal'
 import type { RifaNumero } from '@/types/rifa'
 import { formatNumero } from '@/lib/format'
 
@@ -72,6 +73,7 @@ export function SorteioModal({ open, onClose, numeros }: SorteioModalProps) {
   const [numeroFlash, setNumeroFlash] = useState('')
   const [ganhadores, setGanhadores] = useState<RifaNumero[]>([])
   const [progresso, setProgresso] = useState(0)
+  const [detalhe, setDetalhe] = useState<RifaNumero | null>(null)
   const timers = useRef<number[]>([])
 
   const pagos = useMemo(
@@ -97,6 +99,7 @@ export function SorteioModal({ open, onClose, numeros }: SorteioModalProps) {
       setNumeroFlash('')
       setGanhadores([])
       setProgresso(0)
+      setDetalhe(null)
     }
   }, [open])
 
@@ -285,24 +288,31 @@ export function SorteioModal({ open, onClose, numeros }: SorteioModalProps) {
 
           <ul className="relative z-10 space-y-2">
             {ganhadores.map((g, index) => (
-              <li
-                key={g.id}
-                className="animate-pop-in overflow-hidden rounded-2xl border border-ad-gold/50 bg-white shadow-md"
-                style={{ animationDelay: `${index * 120}ms` }}
-              >
-                <div className="brand-stripe h-1" />
-                <div className="px-4 py-3">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-reserved">
-                    {ganhadores.length > 1 ? `${index + 1}º prêmio` : 'Ganhador'}{' '}
-                    — Nº {formatNumero(g.numero)}
-                  </p>
-                  <p className="font-display text-xl font-bold text-brand-600">
-                    {g.nome_comprador}
-                  </p>
-                  {g.telefone && (
-                    <p className="mt-0.5 text-sm text-muted">{g.telefone}</p>
-                  )}
-                </div>
+              <li key={g.id} style={{ animationDelay: `${index * 120}ms` }}>
+                <button
+                  type="button"
+                  onClick={() => setDetalhe(g)}
+                  className="animate-pop-in w-full overflow-hidden rounded-2xl border border-ad-gold/50 bg-white text-left shadow-md transition active:scale-[0.99]"
+                >
+                  <div className="brand-stripe h-1" />
+                  <div className="px-4 py-3">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-reserved">
+                      {ganhadores.length > 1
+                        ? `${index + 1}º prêmio`
+                        : 'Ganhador'}{' '}
+                      — Nº {formatNumero(g.numero)}
+                    </p>
+                    <p className="font-display text-xl font-bold text-brand-600">
+                      {g.nome_comprador}
+                    </p>
+                    {g.telefone && (
+                      <p className="mt-0.5 text-sm text-muted">{g.telefone}</p>
+                    )}
+                    <p className="mt-2 text-xs font-semibold text-ad-blue">
+                      Toque para ver todos os dados →
+                    </p>
+                  </div>
+                </button>
               </li>
             ))}
           </ul>
@@ -314,6 +324,7 @@ export function SorteioModal({ open, onClose, numeros }: SorteioModalProps) {
                 setEtapa('quantidade')
                 setGanhadores([])
                 setProgresso(0)
+                setDetalhe(null)
               }}
               className="rounded-xl border border-brand-200 px-4 py-2.5 text-sm font-semibold text-ink"
             >
@@ -329,6 +340,16 @@ export function SorteioModal({ open, onClose, numeros }: SorteioModalProps) {
           </div>
         </div>
       )}
+
+      <DetailsModal
+        numero={detalhe}
+        onClose={() => setDetalhe(null)}
+        title={
+          detalhe
+            ? `Dados — ${detalhe.nome_comprador ?? formatNumero(detalhe.numero)}`
+            : 'Detalhes'
+        }
+      />
     </Modal>
   )
 }
