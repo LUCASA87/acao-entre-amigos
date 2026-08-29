@@ -4,6 +4,7 @@ import {
   ArrowLeft,
   CheckCircle2,
   CircleDollarSign,
+  Dices,
   Eraser,
   FileSpreadsheet,
   FileText,
@@ -15,6 +16,7 @@ import {
 import { toast } from 'sonner'
 import { Logo } from '@/components/Logo'
 import { StatCard } from '@/components/StatCard'
+import { SorteioModal } from '@/components/SorteioModal'
 import {
   useLimparNumero,
   useMarcarComoPago,
@@ -35,6 +37,7 @@ export function ReportsPage() {
 
   const [filtroVendedor, setFiltroVendedor] = useState('')
   const [filtroComprador, setFiltroComprador] = useState('')
+  const [sorteioAberto, setSorteioAberto] = useState(false)
 
   const vendidos = useMemo(
     () =>
@@ -115,6 +118,14 @@ export function ReportsPage() {
           </div>
 
           <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+            <button
+              type="button"
+              onClick={() => setSorteioAberto(true)}
+              className="col-span-2 inline-flex touch-manipulation items-center justify-center gap-2 rounded-xl border border-ad-green/40 bg-ad-green px-4 py-2.5 text-sm font-semibold text-white shadow-sm active:opacity-90 sm:col-span-1"
+            >
+              <Dices size={16} />
+              Sortear
+            </button>
             <button
               type="button"
               onClick={handlePdf}
@@ -410,6 +421,12 @@ export function ReportsPage() {
           </div>
         </>
       )}
+
+      <SorteioModal
+        open={sorteioAberto}
+        onClose={() => setSorteioAberto(false)}
+        numeros={data ?? []}
+      />
     </div>
   )
 }

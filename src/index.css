@@ -125,3 +125,40 @@
 .number-cell:active:not(:disabled) {
   transform: scale(0.96);
 }
+
+@keyframes confetti-fall {
+  0% {
+    opacity: 1;
+    transform: translateY(-10px) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(110vh) rotate(720deg);
+  }
+}
+
+.confetti-piece {
+  border-radius: 2px;
+  animation-name: confetti-fall;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+@keyframes sorteio-name-pop {
+  0% {
+    opacity: 0.35;
+    transform: scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.sorteio-name-pop {
+  animation: sorteio-name-pop 0.05s ease-out;
+}
+
+.sorteio-flash {
+  animation: fade-up 0.2s ease-out;
+}
